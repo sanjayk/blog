@@ -1,0 +1,38 @@
+---
+title: "Kubernetes in Production: A Year of Lessons"
+date: "2025.11.28"
+category: "Infrastructure"
+excerpt: "Moving to Kubernetes was harder than expected. Here are the gotchas, wins, and lessons from running K8s in production for a year."
+readTime: "10 min read"
+author: "Your Name"
+---
+
+Kubernetes is powerful, but it's also complex. After a year of running production workloads on K8s, here's what we learned.
+
+## The Good
+
+### Resource Efficiency
+
+Our infrastructure costs dropped by 30% thanks to better resource utilization and autoscaling.
+
+### Deployment Velocity
+
+Rolling deployments and easy rollbacks mean we ship with confidence. We went from weekly deploys to multiple times per day.
+
+## The Challenges
+
+### Complexity
+
+The learning curve is steep. Invest in training and documentation. We spent 3 months just getting comfortable with the basics.
+
+### Debugging
+
+When things go wrong, they can be hard to debug. Good observability is non-negotiable. We use Prometheus and Grafana extensively.
+
+## Key Takeaways
+
+- Start with managed Kubernetes (EKS, GKE) unless you have a dedicated platform team
+- Invest heavily in monitoring and alerting from day one
+- Don't over-engineer—start simple and add complexity only when needed
+- Document everything for your future self and your team
+\`\`\`
