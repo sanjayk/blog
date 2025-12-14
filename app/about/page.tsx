@@ -26,7 +26,7 @@ export default function AboutPage() {
       <main className="mx-auto max-w-4xl px-4 py-12">
         <div className="mb-12">
           <h1 className="mb-2 font-mono text-sm text-muted-foreground">~/about</h1>
-          <div className="text-4xl font-light leading-tight tracking-tight">Hi, I&apos;m [Your Name]</div>
+          <div className="text-4xl font-light leading-tight tracking-tight">Hi, I&apos;m Sanjay</div>
         </div>
 
         <div className="prose prose-neutral max-w-none dark:prose-invert">
@@ -37,28 +37,27 @@ export default function AboutPage() {
           <div className="mt-8 space-y-6 text-foreground/90">
             <p>
               I write about software development, product strategy, and building reliable systems at scale. My work
-              focuses on the intersection of engineering excellence and practical problem-solving.
+              focuses on the intersection of engineering excellence and practical problem-solving and a deep empathy for the end user.
             </p>
 
             <p>
-              Currently building at [Company], where I work on [brief description]. Previously, I&apos;ve worked on
-              [previous experience].
+              Currently building in stealth mode, where I wear many hats like any founder. Previously, I&apos;ve worked at very large and very small companies.
             </p>
 
-            <p>When I&apos;m not coding, you&apos;ll find me [hobbies/interests].</p>
+            <p>When I&apos;m not building, you&apos;ll find me being a primary caregiver, spending time with my family or on a trial or on a treadmill.</p>
           </div>
 
           <div className="mt-12 border-t border-border pt-8">
             <h2 className="mb-4 font-mono text-sm text-muted-foreground">CONNECT</h2>
             <div className="flex flex-col gap-2 font-mono text-sm">
               <a href="https://github.com" className="hover:underline">
-                github.com/username
+                github.com/sanjayk
               </a>
               <a href="https://twitter.com" className="hover:underline">
-                twitter.com/username
+                linkedin.com/in/sanjaykotagiri
               </a>
               <a href="mailto:hello@example.com" className="hover:underline">
-                hello@example.com
+                nohello@nohello.com
               </a>
             </div>
           </div>

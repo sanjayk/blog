@@ -32,7 +32,7 @@ export default function HomePage() {
         <div className="mb-12">
           <h1 className="mb-2 font-mono text-sm text-muted-foreground">~/writing</h1>
           <div className="text-4xl font-light leading-tight tracking-tight md:text-5xl lg:text-6xl">
-            Building thoughtful software,
+            Building thoughtfully,
             <br />
             one commit at a time.
           </div>
@@ -80,14 +80,11 @@ export default function HomePage() {
           <div className="flex items-center justify-between font-mono text-xs text-muted-foreground">
             <div>© 2025</div>
             <div className="flex gap-4">
-              <a href="https://github.com" className="hover:text-foreground">
+              <a href="https://github.com/sanjayk" className="hover:text-foreground">
                 github
               </a>
-              <a href="https://twitter.com" className="hover:text-foreground">
-                twitter
-              </a>
-              <a href="/rss" className="hover:text-foreground">
-                rss
+              <a href="https://linkedin.com/in/sanjaykotagiri" className="hover:text-foreground">
+                linkedin
               </a>
             </div>
           </div>

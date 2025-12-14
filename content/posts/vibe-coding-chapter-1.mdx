@@ -1,0 +1,64 @@
+---
+title: "From Vibe to Verifiable: Building a Coding Agent You Can Trust"
+date: "2025.12.10"
+category: "Developer"
+excerpt: "Chapter 1: A deep dive into API design patterns that scale. From rate limiting to caching strategies, here's what worked for us at 10M+ requests per day."
+readTime: "3 min read"
+author: "sanjay"
+---
+
+## Vibe Coding and the Shape of the Future
+
+### The Direction Is Not in Question
+
+Something irreversible has happened to software development.
+
+For the first time, code is no longer the bottleneck. **Intent is**.
+
+The shift didn’t come from models alone. It came from IDEs like Cursor, Antigravity, and VS Code, and tools like Aider, Cline, and Devin, turning specialized coding models—Codex, Claude Code, Gemini—into something you can think *with*, not just query (and in some cases, simply instruct and walk away).
+
+__Engineers can now converse with their tools__: <br/> Outlining intent, adjusting constraints, asking for alternatives, rejecting approaches, and iterating until the shape feels right. The input isn’t *“add onboarding.”* It’s closer to:
+
+> “Introduce a first-run experience that explains the core value,  
+> reuse existing auth flows,  
+> don’t add new dependencies,  
+> and keep the changes localized to this module.”
+
+While engineers are trying to do their best with what's available to them the providers of foundational models and tools are not sitting idle. They are responding by adding structure around development.
+
+Files like [`AGENTS.md`](https://agents.md) are becoming a lightweight way for teams to encode expectations for AI collaborators: how the repository is organized, which patterns matter, what not to touch. Protocols like Model Context Protocol (MCP) push this further, creating a standard way to expose tools, data, and constraints so agents can operate with more than just raw text. Inside IDEs, this shows up as scoped context, repository-aware indexing, and explicit boundaries on what an agent can see or change.
+
+None of these solve the problem outright.
+
+But together, they signal a shift in thinking: from *“prompt the model better”* to *“shape the environment it operates in.”* These are early, imperfect attempts to give AI something engineering organizations have relied on for decades: shared context, explicit norms, and guardrails.
+
+They’re not the end state. But they are meaningful steps toward making AI participation in real codebases less accidental and more intentional.
+
+Taken together, these developments point in the right direction. IDEs are becoming agent-aware. Teams are starting to document expectations explicitly. Protocols are emerging to carry more than just text across the boundary between humans and models.
+
+The industry knows what it’s missing.
+
+And yet, none of this changes the underlying tension.
+
+Vibe coding still treats understanding as something the model infers, not something the organization controls. It works best when the system is small, the stakes are low, and the consequences of being wrong are easy to absorb.
+
+The open question isn’t whether AI belongs in real codebases.
+
+It already does.
+
+The question is whether we can make it predictable, steerable, and aligned with how engineering organizations actually function—before the cost of improvisation becomes too high.
+
+This snippet is cool in so many ways ツ
+```md
+# AGENTS.md
+
+## Setup commands
+- Install deps: `pnpm install`
+- Start dev server: `pnpm dev`
+- Run tests: `pnpm test`
+
+## Code style
+- TypeScript strict mode
+- Single quotes, no semicolons
+- Use functional patterns where possible
+```
