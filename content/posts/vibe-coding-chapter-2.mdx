@@ -1,0 +1,280 @@
+---
+title: "From Vibe to Verifiable: Why Vibe Coding Breaks in the Real World"
+date: "2025.1.12"
+category: "Developer"
+excerpt: "Chapter 2: When vibe coding breaks down, it doesn’t fail in one way."
+readTime: "3 min read"
+author: "sanjay"
+---
+
+## Why Vibe Coding Breaks in the Real World
+
+I do want to preface this chapter with - *these are issues we face today that need solutions and I expect every single one of these issues to be solved.*
+
+When vibe coding breaks down, it doesn’t fail in one way. It fails along at-least two distinct axes:
+
+- Technical constraints that models cannot intuit
+- Human and organizational dynamics that models amplify
+
+---
+
+## Technical Challenges (Where the System Leaks)
+
+### Partial Context Is Inevitable
+
+**The Failure Mode:**
+The failure isn’t that the agent misses files. It’s that it misses *why the system looks the way it does*.
+
+Large systems encode history through scars—workarounds, guardrails, and “weird” decisions that only make sense if you were there when something broke. Those reasons almost never live next to the code they justify.
+
+**In practice:**
+A team/developer asks an agent to “simplify” a validation flow that has grown convoluted over time. The agent removes what looks like redundant checks and consolidates error handling. Tests pass. Latency improves slightly.
+
+Three weeks later, chargeback rates tick up. It turns out one of the “redundant” checks existed to handle a single legacy partner whose payloads occasionally violate spec. That constraint lived in a Slack thread from two years ago and a post-incident doc no one linked to the code. The agent didn’t miss the logic—it missed the institutional memory.
+
+**The Result:**
+The agent tore down [Chesterton’s Fence](https://fs.blog/chestertons-fence/) because it couldn't see the bull on the other side. The system failed *after* confidence had already been regained.
+
+---
+
+### Multi-Model Strategies Fragment “Taste”
+
+**The Failure Mode:**
+This isn’t about style inconsistency (tabs vs. spaces). It’s about losing a shared sense of what *good judgment* looks like.
+
+Strong engineering cultures encode taste through repetition: similar problems are solved in similar ways because people internalize trade-offs. When multiple models operate with different priors, that learning loop breaks.
+
+**In practice:**
+A team uses a fast IDE model for day-to-day work and a more powerful model in CI to suggest refactors. The CI model frequently proposes abstractions that the IDE model never would. Engineers accept them because they look reasonable and come from a “smarter” agent.
+
+Six months in, senior engineers notice that onboarding has slowed. New hires keep asking which patterns are preferred. There’s no single answer anymore. The codebase reflects an averaged set of instincts rather than a deliberate one.
+
+**The Result:**
+Nothing is obviously wrong—but the team’s ability to move quickly without coordination is gone.
+
+---
+
+### Conflation of Local Correctness and Global Safety
+
+**The Failure Mode:**
+Agents optimize for *what is measurable **at the point of change**. Production systems fail along dimensions that only show up across time, load, and failure modes.
+
+Humans carry this context implicitly. Models don’t.
+
+**In practice:**
+An agent analyzes a slow, sequential background job that processes user data. It suggests refactoring the loop to process records in parallel (using Promise.all or goroutines), correctly identifying that this will reduce execution time by 90%. The logic is valid, the code is cleaner, and unit tests (running against mocks) pass instantly.
+
+**The Result:**
+In production, this new "efficiency" immediately exhausts the database connection pool. The background job inadvertently DDoS’s the primary database.
+
+---
+
+### Rewrite Bias and Abstraction Inflation
+
+**The Failure Mode:**
+Models don’t feel the cost of change. They don’t experience pager duty, nor do they pay the tax of future maintenance. So they treat refactoring as upside-only.
+
+Real systems accumulate stability precisely because people stop touching them.
+
+**In practice:**
+A core scheduling module hasn’t changed in two years. It’s not pretty, but it’s stable. An engineer asks an agent to “make it more readable before adding a feature.” The agent extracts interfaces, splits files, and introduces a new domain abstraction.
+
+The feature ships successfully. Six months later, an on-call engineer investigates a rare scheduling bug. What used to be a single file now requires tracing behavior across five abstractions. The original invariants are no longer obvious. Debug time triples.
+
+**The Result:** No single change caused the pain. The rewrite erased *locality of reasoning*.
+
+---
+
+### Non-Determinism Becomes a Maintenance Problem
+
+**The Failure Mode:**
+Teams rely on shared expectations to move fast. Non-deterministic diffs erode that shared baseline.
+
+**In practice:**
+Two engineers independently ask their agents to “optimize” the same hot path. Both solutions are correct. One unrolls logic for clarity; the other introduces a helper to reduce duplication.
+
+The ensuing review takes days—not because the code is bad, but because no one can articulate *which direction aligns with the system’s long-term shape*. The discussion rehashes trade-offs that were never written down.
+
+**The Result:** Velocity drops, not because of bugs, but because the team has lost a common reference for “what we would normally do.”
+
+---
+
+### Context Saturation and Runtime Collapse
+
+**The Failure Mode:**
+This isn’t about missing facts. It’s about losing *relationships*.
+
+When context is reconstructed via retrieval, the model sees isolated truths without the connective tissue that made them coherent. It still produces confident output—but now that confidence is synthetic.
+
+**In practice:**
+An agent is asked to extend a mature subsystem. The relevant files are retrieved, but not the surrounding ones that explain why certain patterns exist. The agent generalizes from what it sees and introduces a new pathway that “fits” locally.
+
+Weeks later, engineers notice that system behavior has become harder to predict. Edge cases multiply. The model didn’t make a single egregious mistake—it slowly dissolved the shape of the system by reasoning over fragments instead of intent.
+
+**The Result:** This is what collapse looks like in practice: not failure, but erosion.
+
+---
+
+## Human and Organizational Challenges (Where the System Drifts)
+
+These are harder, because they don’t look like bugs.
+
+### Taste Is Cultural, Not Learnable by Default
+
+Engineering teams have taste:
+
+* What’s acceptable
+* What’s frowned upon
+* What’s clever vs irresponsible
+* What’s “how we do things here”
+
+Humans absorb this through osmosis. Models don’t.
+
+Without explicit encoding, agents approximate taste statistically. That approximation is always slightly wrong.
+
+Over time, the culture leaks out of the codebase.
+
+---
+
+### Git Workflows Assume Humans
+
+Modern Git workflows are built on a quiet assumption: the author of a change is a human who understands why the change exists. But when agents become your dominant code committers and PR makers then,
+
+* Which human owns the decision?
+* Which human evaluated the trade-offs?
+* Which human understands the failure modes?
+
+After-all, the consequences of the implementation today will be borne by humans.
+
+Intent moves upstream, but accountability often doesn’t follow.
+
+This creates a subtle gap where everyone approved the change, but no one truly *owned* it.
+
+---
+
+### Review Fatigue and False Confidence
+
+AI-generated code often:
+
+* Looks clean
+* Is well-commented
+* Comes with confident explanations
+
+Reviewers start trusting it by default.
+
+But clarity is not correctness. Explanation is not alignment.
+
+Over time, review quality degrades—not because engineers are careless, but because the cognitive load shifts.
+
+---
+
+### Velocity Outpaces Alignment
+
+Vibe coding compresses time.
+
+That’s the point. But alignment takes time:
+
+* Architectural discussions
+* Design reviews
+* Socialization of constraints
+
+When change happens faster than alignment, teams stop converging. The effect of that is that over time, velocity no longer correlates to shipping speed and understanding is sacrificed.
+
+---
+
+### Silent Normalization of Mediocrity
+
+Perhaps the most insidious failure mode.
+
+When AI fills gaps, teams stop noticing:
+
+* Missing documentation
+* Weak abstractions
+* Unclear ownership
+
+The system “works,” so the pressure to improve foundations disappears.
+
+Entropy becomes invisible.
+
+---
+
+---
+
+## Security and Safety (This needs its own space)
+
+### Privilege Amplification by Convenience
+
+**Failure Mode:**
+To be useful, agents are often given broad access: read and possibly write access across repositories, the ability to modify infra code, regenerate credentials or configs, interact with CI, cloud APIs, or internal tools. Each of these permissions is reasonable in isolation. Together, they create a new class of risk.
+
+**In Practice:**
+An agent is asked to “fix intermittent authorization failures” blocking a deploy. It identifies a role mismatch between two internal services and updates the IAM policy to allow a broader set of actions. The change works immediately. Error rates drop. The diff looks reasonable and passes review.
+
+**The Result:**
+A failed security audit. An audit reveals the service now has permissions far beyond its original design. No incident occurred. No alert fired. But a critical boundary was silently weakened to resolve a local problem.
+
+### Security/Compliance Rules Are Rarely Written Down
+
+**Failure Mode:**
+Most security rules live as tribal knowledge, sometimes intentionally. Stuff like - 
+
+- “this service must never call that one”
+- “nothing external should directly touch this table”
+- “this path is intentionally slow”
+- "you are allowed to only use a specific version of a package"
+- "Employee access must be terminated by x date"
+- "Credentials must be stored"
+
+**In Practice:**
+Certain 3rd party packages expose wrappers that look the same to the naked eye. Especially, access keys that are not transparent. And a single commit into Git essentially opens an attack vector.
+
+**The Result:** An attack vector lurking not just in your code but also in your source code repository.
+
+### Safety Failures Don’t Look Like Bugs
+
+**Failure Mode:**
+The most dangerous failures won’t crash systems. They will quietly expand the system’s attack surface.
+
+- More code paths
+- More code paths
+- More dependencies
+- More reachable states
+
+**In Practice:**
+A team needs a new staging environment. The team copies an existing, overly-permissive configuration. ¯\_(ツ)_/¯
+
+**The Result:** Fines if you are regulated or worse, a lax culture around protecting users.
+
+### Stale Knowledge and Dependency Drift
+
+Agents don’t just operate on incomplete context. They operate on time-delayed knowledge.
+
+Even when connected to the internet or package registries, models carry priors shaped by:
+As of 2025, 45% of AI-generated coding tasks contain critical security flaws. A major reason is that models carry "priors" of common but deprecated libraries.
+
+- outdated APIs
+- deprecated best practices
+- historical versions of popular libraries
+- historical versions of popular libraries
+
+**In Practice:**
+An agent may suggest using an older version of a library like OpenSSL or a deprecated authentication method (e.g., basic MD5 hashing for passwords) simply because those patterns appeared more frequently in its training data than the newer, secure standards.
+
+**The Result:** This results in "Bugs Déjà-Vu," where previously solved security issues (like buffer overflows or SQL injection) are silently re-inserted into modern codebases by AI tools.
+
+### Security Reviews Assume Intentional Choice
+
+A lot of the points above make this assumption. I do think the way security and protecting assets including user information has been antiquated for a long time. It's a consequence of a drift between policy making teams and the implementation teams. When an organization gets sufficiently large and especially run by non-technical folk, this is a natural end-state. Vibe Coding is going to amplify this disconnect.
+
+---
+
+## The Pattern Across All Failures
+
+The common thread is not intelligence or accuracy.
+
+It’s that **understanding is implicit, but organizations require it to be explicit**.
+
+Vibe coding assumes meaning emerges.
+Engineering organizations survive by enforcing it.
+
+That mismatch is what breaks at scale.
