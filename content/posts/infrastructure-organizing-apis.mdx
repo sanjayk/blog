@@ -1,0 +1,539 @@
+---
+title: "Organizing Your API Codebase is Infrastructure"
+date: "2025.12.24"
+category: "Infrastructure"
+excerpt: "A pragmatic guide to structuring your API codebase using Screaming Architecture and Single Responsibility Principle."
+readTime: "5 min read"
+author: "sanjay"
+---
+
+
+We are going to adopt **"Screaming Architecture"** (Robert C. Martin) for our Acme Corp APIs. When you look at the file structure, it should scream **"Manufacturing & Logistics,"** not "Django Project" or "Python Script."
+
+An exhaustive breakdown for the entire framework, applying the **Single Responsibility Principle (SRP)** to the file system level.
+
+### The Core Philosophy: Vertical Slicing + Horizontal Layering
+
+Every Domain (Bounded Context) will follow this exact recursive structure.
+
+1.  **`domain/`**: The "What". Pure Python. No libraries.
+2.  **`application/`**: The "How". Orchestration. Clean separation of **Commands** (Writes) and **Queries** (Reads).
+3.  **`infrastructure/`**: The "Where". DB adapters, 3rd party APIs.
+4.  **`interface/`**: The "Who". Strawberry GraphQL adapters.
+
+---
+
+### 1. The Directory Structure (Exhaustive)
+
+We will use the **Warehouse** domain as the reference implementation. The same structure applies to `Procurement`, `Logistics`, and `QualityControl`.
+
+```text
+src/
+├── shared/                         # KERNEL: Shared across all domains
+│   ├── domain/
+│   │   ├── value_objects.py        # Weight, Dimensions, UnitOfMeasure
+│   │   └── events.py               # DomainEvent base class
+│   └── infrastructure/
+│       └── db.py                   # SQLAlchemy Base
+│
+├── domains/
+│   ├── warehouse/                  # CONTEXT: Inventory Management
+│   │   ├── __init__.py             # Module export
+│   │   │
+│   │   ├── domain/                 # LAYER: Enterprise Business Rules
+│   │   │   ├── aggregates/         # Grouping entities that change together
+│   │   │   │   ├── part.py         # Class Part(AggregateRoot)
+│   │   │   │   └── bin_location.py # Class BinLocation(Entity)
+│   │   │   ├── value_objects/      # Domain-specific immutable values
+│   │   │   │   ├── sku.py          # StockKeepingUnit (Regex Validated)
+│   │   │   │   └── safety_stock.py # Min/Max levels
+│   │   │   ├── events/             # Events emitted by this domain
+│   │   │   │   ├── registered.py   # PartRegistered
+│   │   │   │   └── stock_low.py    # StockLowWarning
+│   │   │   └── repositories.py     # Interfaces (Abstract Base Classes) only!
+│   │   │
+│   │   ├── application/            # LAYER: Application Business Rules
+│   │   │   ├── commands/           # WRITE SIDE (CQRS) - One file per Use Case
+│   │   │   │   ├── register_part.py
+│   │   │   │   ├── adjust_stock.py
+│   │   │   │   └── decommission_part.py
+│   │   │   ├── queries/            # READ SIDE (CQRS)
+│   │   │   │   ├── get_part_spec.py
+│   │   │   │   └── check_availability.py
+│   │   │   └── dtos/               # Data Transfer Objects (Pure Data Classes)
+│   │   │       ├── part_dto.py
+│   │   │       └── stock_report.py
+│   │   │
+│   │   ├── infrastructure/         # LAYER: Frameworks & Drivers
+│   │   │   ├── persistence/        # Database implementations
+│   │   │   │   ├── orm_models.py   # SQLAlchemy Tables (NOT Domain Entities)
+│   │   │   │   ├── mappers.py      # ORM <-> Domain Entity Converter
+│   │   │   │   └── postgres_repo.py# Implementation of domain/repositories.py
+│   │   │   └── services/           # External Services
+│   │   │       └── erp_connector.py# Legacy ERP Sync
+│   │   │
+│   │   └── interface/              # LAYER: Interface Adapters (Strawberry)
+│   │       ├── types/              # GraphQL Output Types
+│   │       │   ├── part.py
+│   │       │   ├── specs.py
+│   │       │   └── location.py
+│   │       ├── inputs/             # GraphQL Input Types
+│   │       │   ├── registration.py
+│   │       │   └── adjustments.py
+│   │       ├── mutations/          # GraphQL Mutation Resolvers
+│   │       │   ├── inventory.py    # Connects GQL -> App Command
+│   │       │   └── logistics.py
+│   │       └── queries/            # GraphQL Query Resolvers
+│   │           └── catalog.py      # Connects GQL -> App Query
+│   │
+│   └── procurement/                # CONTEXT: Purchasing (Same structure as above)
+│
+└── main.py
+```
+
+---
+
+### 2. Implementation Rules (Pedantic)
+
+#### A. The Domain Layer (Strict Purity)
+
+**File:** `src/domains/warehouse/domain/aggregates/part.py`
+
+_Rule: This file cannot import `strawberry`, `sqlalchemy`, or `pydantic`. It imports only from `shared` or sibling domain files._
+
+```python
+from typing import Optional
+from src.shared.domain.value_objects import Weight
+from ..value_objects.sku import SKU
+from ..events.registered import PartRegistered
+
+class Part:
+    def __init__(self, id: str, sku: SKU, name: str, weight: Weight):
+        self.id = id
+        self.sku = sku
+        self.name = name
+        self.weight = weight
+        self.is_active = False
+        self.bin_location_id: Optional[str] = None
+
+    def activate(self):
+        """Domain Rule: Cannot activate a part with zero weight."""
+        if self.weight.value <= 0:
+            raise ValueError("Cannot activate part with zero or negative weight")
+        self.is_active = True
+        # Return event to be dispatched by Application Layer
+        return PartRegistered(part_id=self.id, sku=self.sku.value)
+
+    def assign_location(self, bin_id: str):
+        self.bin_location_id = bin_id
+```
+
+#### B. The Application Layer (Granular CQRS)
+
+We do **not** use a generic `PartService` class. That is an anti-pattern that leads to "God Classes." We create **Command Handlers**.
+
+**File:** `src/domains/warehouse/application/commands/register_part.py`
+
+```python
+from dataclasses import dataclass
+from src.shared.domain.value_objects import Weight
+from ...domain.repositories import PartRepository
+# Note: We import the Domain Entity, but we don't expose it. We return a DTO.
+from ...domain.aggregates.part import Part
+from ...domain.value_objects.sku import SKU
+
+@dataclass
+class RegisterPartCommand:
+    sku_code: str
+    name: str
+    weight_val: float
+    unit: str
+
+class RegisterPartHandler:
+    def __init__(self, repo: PartRepository):
+        self.repo = repo
+
+    def handle(self, cmd: RegisterPartCommand) -> str:
+        # 1. Validation & Value Object creation
+        sku = SKU(cmd.sku_code) # Validates regex format (e.g., "ACM-123")
+        weight = Weight(cmd.weight_val, cmd.unit)
+
+        # 2. Domain Logic
+        part = Part(
+            id=self.repo.next_identity(),
+            sku=sku,
+            name=cmd.name,
+            weight=weight
+        )
+
+        # 3. Persistence
+        self.repo.save(part)
+
+        return part.id
+```
+
+#### C. The Infrastructure Layer (The Mapper Pattern)
+
+_Rule: Never let your ORM models leak into the Domain or Application layers._
+
+**File:** `src/domains/warehouse/infrastructure/persistence/mappers.py`
+
+```python
+from .orm_models import PartModel # The SQLAlchemy Class
+from ...domain.aggregates.part import Part # The Domain Class
+from ...domain.value_objects.sku import SKU
+from src.shared.domain.value_objects import Weight
+
+class PartMapper:
+    @staticmethod
+    def to_domain(model: PartModel) -> Part:
+        part = Part(
+            id=model.id,
+            sku=SKU(model.sku),
+            name=model.name,
+            weight=Weight(model.weight_val, model.weight_unit)
+        )
+        if model.is_active:
+            part.is_active = True
+        return part
+
+    @staticmethod
+    def to_persistence(entity: Part) -> PartModel:
+        return PartModel(
+            id=entity.id,
+            sku=entity.sku.value,
+            name=entity.name,
+            weight_val=entity.weight.value,
+            weight_unit=entity.weight.unit,
+            is_active=entity.is_active
+        )
+```
+
+#### D. The Interface Layer (Strawberry Adapters)
+
+We treat GraphQL as just another delivery mechanism. It translates GQL types to Commands.
+
+**File:** `src/domains/warehouse/interface/mutations/inventory.py`
+
+```python
+import strawberry
+from ...application.commands.register_part import (
+    RegisterPartCommand,
+    RegisterPartHandler
+)
+from ..inputs.registration import PartRegistrationInput
+from ..types.part import PartType
+
+@strawberry.type
+class InventoryMutations:
+
+    @strawberry.mutation
+    def register_part(
+        self,
+        info,
+        input: PartRegistrationInput
+    ) -> PartType:
+
+        # 1. Extract Handler from DI Container (in info.context)
+        handler: RegisterPartHandler = info.context["di"].resolve(RegisterPartHandler)
+
+        # 2. Map Input -> Command
+        command = RegisterPartCommand(
+            sku_code=input.sku,
+            name=input.name,
+            weight_val=input.weight,
+            unit=input.unit
+        )
+
+        # 3. Execute
+        new_id = handler.handle(command)
+
+        # 4. Return dummy type or fetch fresh (CQRS separation)
+        return PartType(id=new_id, name=input.name, sku=input.sku)
+```
+
+---
+
+### 3. The "Why" behind this Granularity
+
+1.  **Conflict Minimization:**
+    - Developer A works on `application/commands/register_part.py`.
+    - Developer B works on `application/commands/adjust_stock.py`.
+    - **Result:** Zero merge conflicts. A `services.py` file would have caused conflicts.
+
+2.  **Testability:**
+    - You can unit test `RegisterPartHandler` by mocking the `PartRepository`. You don't need to spin up the API or the DB.
+
+3.  **Replaceability:**
+    - If you want to switch from SQLAlchemy to MongoDB, you only delete `infrastructure/persistence/postgres_repo.py` and write `mongo_repo.py`. The Domain, Application, and GraphQL layers **do not change**.
+
+---
+
+### 4. Testing
+
+Because your **Domain** and **Application** layers are pure Python (no DB dependencies), you can test 80% of your business logic in milliseconds without spinning up a database.
+
+Here is how we integrate a **World-Class Testing Strategy** into your specific "Screaming Architecture."
+
+#### The Testing Philosophy: The Testing Trophy
+
+We don't just dump files in a `tests` folder. The tests mirror the layers.
+
+1.  **Domain Tests (Unit)**: Test business rules. No Mocks. No DB. Blazing fast.
+2.  **Application Tests (Unit with Mocks)**: Test orchestration. Mock the Repositories. Verify the flow.
+3.  **Infrastructure Tests (Integration)**: Test the SQL. Real DB. Slower, but necessary.
+4.  **Interface Tests (E2E)**: Test the Contract. GraphQL inputs/outputs.
+
+---
+
+#### A. The Directory Structure (Mirrored)
+
+We mirror `src` exactly. This makes it obvious where a test belongs.
+
+```text
+tests/
+├── conftest.py                     # Global Fixtures (DB, Client)
+├── shared/
+│   └── factories.py                # Domain Object Factories
+├── domains/
+│   ├── warehouse/
+│   │   ├── domain/                 # PURE UNIT TESTS
+│   │   │   └── test_part.py        # Tests aggregate logic
+│   │   ├── application/            # MOCKED UNIT TESTS
+│   │   │   └── test_register_handler.py
+│   │   ├── infrastructure/         # INTEGRATION TESTS (DB)
+│   │   │   └── test_postgres_repo.py
+│   │   └── interface/              # API TESTS
+│   │       └── test_inventory_mutations.py
+```
+
+---
+
+#### B. Implementation: Layer by Layer
+
+##### B.1. Domain Layer Tests (Pure Logic)
+
+**File:** `tests/domains/warehouse/domain/test_part.py`
+
+_Why this is great:_ We test complex rules without needing a database or a web server.
+
+```python
+import pytest
+from src.shared.domain.value_objects import Weight
+from src.domains.warehouse.domain.aggregates.part import Part
+from src.domains.warehouse.domain.value_objects.sku import SKU
+
+def test_cannot_activate_part_with_zero_weight():
+    # Arrange
+    part = Part(
+        id="p1",
+        sku=SKU("ACM-999"),
+        name="Anti-Gravity Bolt",
+        weight=Weight(0, "kg")
+    )
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="Cannot activate part with zero"):
+        part.activate()
+
+def test_activation_emits_event():
+    part = Part("p1", SKU("ACM-999"), "Bolt", Weight(1, "kg"))
+    
+    event = part.activate()
+    
+    assert part.is_active is True
+    assert event.sku == "ACM-999"
+```
+
+##### B.2. Application Layer Tests (Orchestration)
+
+**File:** `tests/domains/warehouse/application/test_register_handler.py`
+
+_Why this is great:_ We verify the _flow_ (validation -> creation -> persistence) using **Mocks**. We don't care if the DB works here; we assume the Repository interface holds true.
+
+```python
+from unittest.mock import Mock
+from src.domains.warehouse.application.commands.register_part import (
+    RegisterPartCommand,
+    RegisterPartHandler
+)
+from src.domains.warehouse.domain.repositories import PartRepository
+
+def test_handler_saves_part_correctly():
+    # 1. Mock the Repository (Infrastructure)
+    mock_repo = Mock(spec=PartRepository)
+    mock_repo.next_identity.return_value = "part_777"
+
+    # 2. Setup Command
+    cmd = RegisterPartCommand(
+        sku_code="ACM-555",
+        name="Steel Sheet",
+        weight_val=50.0,
+        unit="kg"
+    )
+
+    # 3. Execute Handler
+    handler = RegisterPartHandler(repo=mock_repo)
+    result_id = handler.handle(cmd)
+
+    # 4. Assert Interactions
+    assert result_id == "part_777"
+    
+    # Verification: Did we actually call save?
+    mock_repo.save.assert_called_once()
+    
+    # Deep verification: Did we save the right data?
+    saved_part = mock_repo.save.call_args[0][0]
+    assert saved_part.sku.value == "ACM-555"
+```
+
+##### B.3. Infrastructure Layer Tests (Persistence)
+
+**File:** `tests/domains/warehouse/infrastructure/test_postgres_repo.py`
+
+_Why this is great:_ This is the _only_ place we test SQL/ORM mapping. If we switch to MongoDB, we only rewrite this test file.
+
+```python
+from src.domains.warehouse.infrastructure.persistence.postgres_repo import PostgresPartRepository
+from tests.shared.factories import PartFactory
+from src.domains.warehouse.domain.value_objects.sku import SKU
+
+def test_repo_persists_part(db_session):
+    # db_session comes from conftest.py (Real DB transaction)
+    repo = PostgresPartRepository(db_session)
+    
+    # Create Domain Entity via Factory
+    part = PartFactory(sku=SKU("ACM-TEST"))
+    
+    # Save
+    repo.save(part)
+    db_session.flush() # Force SQL generation
+    
+    # Retrieve
+    fetched = repo.get_by_sku("ACM-TEST")
+    
+    # Assert
+    assert fetched is not None
+    assert fetched.id == part.id
+```
+
+##### B.4. Interface Layer Tests (Contract)
+
+**File:** `tests/domains/warehouse/interface/test_inventory_mutations.py`
+
+_Why this is great:_ Ensures Strawberry is configured correctly and inputs map to commands.
+
+```python
+def test_register_part_mutation(client):
+    mutation = """
+        mutation {
+            registerPart(input: {
+                sku: "ACM-001",
+                name: "Turbine Blade",
+                weight: 12.5,
+                unit: "kg"
+            }) {
+                id
+                sku
+            }
+        }
+    """
+
+    # We mock the DI container in the client fixture to return a real or mocked handler
+    response = client.post("/graphql", json={"query": mutation})
+
+    assert response.status_code == 200
+    data = response.json()
+    assert data["data"]["registerPart"]["sku"] == "ACM-001"
+```
+
+---
+
+#### C. The Factories (Crucial Helper)
+
+To make Domain testing easy, we need a way to generate complex Aggregate Roots quickly.
+
+**File:** `tests/shared/factories.py`
+
+```python
+import factory
+from src.domains.warehouse.domain.aggregates.part import Part
+from src.domains.warehouse.domain.value_objects.sku import SKU
+from src.shared.domain.value_objects import Weight
+
+class PartFactory(factory.Factory):
+    class Meta:
+        model = Part
+
+    id = factory.Sequence(lambda n: f"part_{n}")
+    sku = factory.Sequence(lambda n: SKU(f"ACM-{n}"))
+    name = "Standard Widget"
+    weight = Weight(10.0, "kg")
+    
+    # We handle the __init__ arguments matching the Domain Entity
+```
+
+---
+
+### 5. JSON Generation for Scaffolding
+
+This JSON reflects the exhaustive structure required.
+
+```json
+{
+  "project_root": "acem_corp_erp",
+  "structure": {
+    "src": {
+      "shared": {
+        "domain": ["value_objects.py", "events.py", "exceptions.py"],
+        "infrastructure": ["db.py", "bus.py"]
+      },
+      "domains": {
+        "warehouse": {
+          "domain": {
+            "aggregates": ["part.py", "bin_location.py"],
+            "value_objects": ["sku.py", "safety_stock.py"],
+            "events": ["registered.py"],
+            "repositories.py": null
+          },
+          "application": {
+            "commands": ["register_part.py", "adjust_stock.py"],
+            "queries": ["get_spec.py"],
+            "dtos": ["part_dto.py"]
+          },
+          "infrastructure": {
+            "persistence": ["orm_models.py", "mappers.py", "postgres_repo.py"]
+          },
+          "interface": {
+            "types": ["part.py"],
+            "inputs": ["registration.py"],
+            "mutations": ["inventory.py"],
+            "queries": ["catalog.py"],
+            "__init__.py": null
+          },
+          "__init__.py": null
+        },
+        "procurement": {
+          "domain": { "aggregates": ["purchase_order.py"] },
+          "__init__.py": null
+        }
+      },
+      "main.py": null
+    }
+  },
+  "tests": {
+    "conftest.py": "DB Fixtures & Client",
+    "shared": {
+      "factories.py": "Domain Object Factories"
+    },
+    "domains": {
+      "warehouse": {
+        "domain": ["test_part.py"],
+        "application": ["test_register_handler.py"],
+        "infrastructure": ["test_postgres_repo.py"],
+        "interface": ["test_inventory_mutations.py"]
+      }
+    }
+  }
+}
+```
