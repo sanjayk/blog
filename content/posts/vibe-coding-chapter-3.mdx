@@ -1,0 +1,59 @@
+---
+title: "From Vibe to Verifiable: The Journey from Instructions to Intent"
+date: "2025.12.26"
+category: "Developer"
+excerpt: "Chapter 3: To make vibe coding scale, we need to change what we give these systems and when we intervene."
+readTime: "3 min read"
+author: "sanjay"
+---
+
+## From Instructions to  Intent
+
+Raise your hand if you wanted to cuss out your "assistant". They are incredibly frustrating to work with if your project is sufficiently complex and you are sufficiently competent.
+
+Having said that, vibe coding is real leverage (I realize not everyone subscribes to this statement but that's what we are seeing, 200K lines of code, 75% of it vibe coded). Modern IDEs and coding tools collapse the cost of execution. They turn loosely framed goals into working code with unprecedented speed. That power is not theoretical — it’s already reshaping how software is built. BUT, **that same power breaks down at scale** (see chapter 2).
+
+Taken together, this creates a tension every engineering/product organization now faces:
+
+>How do you keep the speed and leverage of vibe coding without dissolving the system you’re building?
+
+In the first 2 chapters, we’ve described why vibe coding matters and what goes wrong when it’s applied naively. From here on, the question becomes **how to make it scale**.
+
+That "HOW" is - 
+(although better/more of each thing helps...)
+
+- Not better prompts
+- Not longer context windows
+- Not more capable models
+
+In my view, the core problem is simpler: **today’s interfaces are wrong.** -- (ㆆ _ ㆆ).
+
+We are still interacting with coding tools as if they were junior developers: issuing instructions, reviewing diffs, and assuming shared context will fill in the gaps. That assumption held when humans were the bottleneck. It breaks when execution is cheap and continuous.
+
+### The Systems Thinking Bridge
+
+I generally have started to gloss over _here are 15 prompts to make your vibe coding better_ or _here is my workflow to make the most of AI coding agents_ type posts.
+
+To make vibe coding scale, we need to change what we give these systems and when we intervene. That requires two capabilities (Neither of which exist today):
+
+- Steerability — can we constrain and guide system behavior before code is produced, not after?
+- Verification — can we surface violations early, while they are still cheap to fix?
+
+
+It turns out **encoding intent** is really really hard!!!
+
+If you look closely at how experienced engineers work with these tools, they are trying really hard to externalize intent in the form of various artifacts.
+
+- `their workflow` — the sequence of steps they trust to keep the system coherent
+- `documentation` — architectural narratives, invariants, ownership, API contracts
+- `prompting strategy` — how they communicate expectations to AI tools
+- `boundary setting` — what’s allowed, what’s forbidden, what must never change
+- `.agentrules files` — explicit constraints and invariants
+- `agents.md files` — behavioral intent and module responsibilities
+- `system design documents` — the shape of the system and its non‑negotiables
+
+These aren’t random artifacts. They’re the distributed expression of one of the fundamental needs we must get right: **steerability**
+
+We haven't even begun to scratch the surface of **verification**
+
+If vibe coding is the new engine, then Steerability and Verification are the brakes and the steering wheel.  Without them, you’re not shipping faster — you’re just accelerating toward entropy. The next chapters are about installing the controls and finally talk about the HOW.
