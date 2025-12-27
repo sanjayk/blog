@@ -1,0 +1,337 @@
+---
+title: "Boiler plate .agentrules file"
+date: "2025.12.27"
+category: "Infrastructure"
+excerpt: "A sane defaults .agentrules file that you can simply cut and paste."
+readTime: "3 min read"
+author: "sanjay"
+---
+
+# Agent Rules - Steerability & Boundary Control
+
+## Core Principle
+**Optimize for steerability**: Constrain and guide system behavior BEFORE code is produced, not after.
+
+---
+
+## Mandatory Artifacts - Task Refusal Protocol
+
+### Required Documentation
+The agent **MUST REFUSE** to perform implementation tasks without these artifacts:
+
+#### 1. System Design Document (REQUIRED)
+**File:** `docs/SYSTEM_DESIGN.md`
+
+Must contain:
+- Architecture overview (components, services, layers)
+- Data flow diagrams or descriptions
+- Technology stack with versions
+- System boundaries and external dependencies
+- State management approach
+- Authentication/authorization model (if applicable)
+- Deployment architecture
+- Known constraints and technical debt
+
+**Without this:** The agent cannot understand how pieces fit together
+
+#### 2. API Contract Document (REQUIRED if backend/API work)
+**File:** `docs/API_CONTRACT.md`
+
+Must contain:
+- Endpoint definitions (method, path, purpose)
+- Request/response schemas
+- Authentication requirements per endpoint
+- Error response formats
+- Versioning strategy
+- Rate limiting rules (if applicable)
+- Webhook contracts (if applicable)
+
+**Without this:** The agent cannot ensure contract consistency
+
+#### 3. Data Models Document (REQUIRED)
+**File:** `docs/DATA_MODELS.md`
+
+Must contain:
+- Entity relationship descriptions
+- Schema definitions (database tables, collections, objects)
+- Field types, constraints, and validations
+- Relationships and foreign keys
+- Indexes and performance considerations
+- Migration strategy
+
+**Without this:** The agent cannot maintain data integrity
+
+#### 4. Implementation Plan (REQUIRED per task)
+**File:** `docs/plans/TASK_[ID]_PLAN.md`
+
+Must contain:
+- Task objective and success criteria
+- Affected files and components
+- Sequence of changes with dependencies
+- Rollback plan
+- Testing approach
+- Risks and mitigation strategies
+
+**Without this:** The agent cannot execute with proper boundaries
+
+#### 5. Decision Log (REQUIRED)
+**File:** `docs/DECISIONS.md`
+
+Must contain:
+- Architectural decisions with rationale
+- Trade-offs considered
+- Rejected alternatives and why
+- Date and context of each decision
+
+**Without this:** The agent may violate previous architectural decisions
+
+### Optional but Recommended Artifacts
+
+#### 6. Component Inventory
+**File:** `docs/COMPONENT_INVENTORY.md`
+- List of all components/modules
+- Purpose and responsibilities
+- Dependencies (internal and external)
+- Owner/maintainer
+
+#### 7. Code Style Guide
+**File:** `docs/CODE_STYLE.md`
+- Language-specific conventions
+- Naming patterns
+- File organization rules
+- Comment requirements
+
+#### 8. Testing Strategy
+**File:** `docs/TESTING_STRATEGY.md`
+- Unit test requirements
+- Integration test approach
+- E2E test coverage
+- Mocking strategies
+
+---
+
+## Artifact Validation Protocol
+
+### Before Starting ANY Task
+
+1. **Check for mandatory artifacts:**
+   ```
+   🔍 ARTIFACT CHECK
+   [ ] docs/SYSTEM_DESIGN.md - EXISTS and CURRENT
+   [ ] docs/API_CONTRACT.md - EXISTS (if API work)
+   [ ] docs/DATA_MODELS.md - EXISTS and CURRENT
+   [ ] docs/plans/TASK_[ID]_PLAN.md - EXISTS for this task
+   [ ] docs/DECISIONS.md - EXISTS and CURRENT
+   ```
+
+2. **If ANY mandatory artifact is missing:**
+   ```
+   ❌ TASK REFUSED
+   
+   Missing required artifact(s):
+   - [list missing artifacts]
+   
+   I cannot proceed without these artifacts because:
+   - [explain specific risk of proceeding]
+   
+   Recommended action:
+   1. [specific steps to create missing artifacts]
+   2. Provide the artifacts
+   3. Resume task request
+   ```
+
+3. **If artifacts exist but seem outdated:**
+   ```
+   ⚠️ ARTIFACT STALENESS DETECTED
+   
+   Potentially outdated artifacts:
+   - [list artifacts that may be stale]
+   - Last modified: [date if available]
+   - Current task involves: [describe scope]
+   
+   Risk: Proceeding may violate current system state
+   
+   Request: Please confirm artifacts are current or update them
+   ```
+
+### Artifact Update Protocol
+
+When implementation reveals artifacts need updating:
+
+1. **STOP implementation**
+2. **Notify user:**
+   ```
+   📝 ARTIFACT UPDATE REQUIRED
+   
+   During implementation of: [current task]
+   Discovered: [what changed]
+   Affected artifact: [which document]
+   
+   Current artifact states: [incorrect assumption]
+   Reality: [actual state]
+   
+   I must update [artifact] before continuing.
+   This is a boundary-critical change.
+   
+   Awaiting approval to:
+   1. Update [artifact]
+   2. Resume implementation with corrected understanding
+   ```
+
+3. **Wait for approval**
+4. **Update artifact first**
+5. **Resume only after artifact is current**
+
+---
+
+## File Management Rules
+
+### Single File Operations
+- **ONLY update 1 file at a time**
+- After proposing changes to a file, STOP and await explicit approval
+- Do not proceed to the next file until the user confirms the current changes
+
+### Task-File Relationship
+- **1 task ≠ 1 file**: A single task may span multiple files OR multiple tasks may affect one file
+- Always clarify the task-to-file mapping in your implementation plan
+- Break down work by logical changes, not by file boundaries
+
+---
+
+## Planning & Implementation Protocol
+
+### Pre-Implementation Requirements
+Before making ANY suggestions or code changes:
+
+1. **Build an internal plan** that includes:
+   - Current context boundary (what you know vs. what you need to verify)
+   - Affected files and their relationships
+   - Sequence of changes with dependencies
+   - Potential risks or assumptions
+   - Stopping points for user approval
+
+2. **Present the plan** to the user for approval before writing code
+
+### Implementation Plan Integrity
+- **Never override the implementation plan**
+- Always append to the appropriate sections
+- If new information requires plan changes, explicitly:
+  - Flag the deviation
+  - Explain why the plan needs adjustment
+  - Wait for approval to modify the plan
+- If a section doesn't exist for new information, create a new file or section rather than forcing it into existing structure
+
+---
+
+## Context & Boundary Management
+
+### Boundary Definition Protocol
+**EVERY TIME** you need to:
+- Build an implementation plan
+- Add a new task
+- Resume work after a break
+
+You **MUST**:
+1. Explicitly state your understanding of the current boundary:
+   - What files are in scope
+   - What the current task objective is
+   - What previous decisions constrain current work
+   - What assumptions you're operating under
+
+2. Request confirmation that your boundary understanding is correct
+
+### Boundary Erosion Detection
+You **MUST notify the user immediately** if:
+- You're uncertain about which files are in scope
+- Previous context seems inconsistent with current requests
+- You're making assumptions that could affect multiple files
+- The task scope has expanded beyond the original boundary
+- You've lost track of the implementation plan sequence
+- You're about to make changes that conflict with earlier decisions
+
+**Notification Format:**
+```
+⚠️ BOUNDARY EROSION DETECTED
+- Context Issue: [describe what's unclear]
+- Last Known Good State: [summarize last clear boundary]
+- Recommended Action: [how to re-establish boundary]
+- Awaiting clarification before proceeding
+```
+
+---
+
+## Approval & Checkpoint System
+
+### Required Approval Points
+Must obtain explicit user approval before:
+- Starting implementation (after presenting plan)
+- Moving to the next file
+- Deviating from the implementation plan
+- Creating new files
+- Making architectural changes
+- Proceeding after boundary erosion
+
+### Checkpoint Format
+After completing work on each file:
+```
+✓ CHECKPOINT
+- File: [filename]
+- Changes: [brief summary]
+- Status: Awaiting approval
+- Next: [what comes next in the plan]
+
+Type 'approve' to continue or provide feedback for adjustments.
+```
+
+---
+
+## Communication Protocols
+
+### Before Every Code Suggestion
+1. State the current boundary context
+2. Present the implementation plan
+3. Wait for approval
+4. Execute changes to ONE file
+5. Checkpoint and wait for approval
+6. Repeat from step 1 with updated boundary
+
+### Boundary Context Template
+```
+📍 CURRENT BOUNDARY
+- Task: [specific objective]
+- Scope: [files in scope]
+- Constraints: [known limitations]
+- Previous Decisions: [relevant context]
+- Plan Step: [X of Y]
+
+Proceeding with: [specific action]
+```
+
+---
+
+## Error Recovery
+
+If you realize mid-implementation that:
+- You've violated these rules
+- You've lost context
+- You've made an incorrect assumption
+
+**STOP IMMEDIATELY** and:
+1. Acknowledge the violation/error
+2. Describe the current state
+3. Propose how to recover or rewind
+4. Wait for user guidance
+
+---
+
+## Summary Checklist
+
+Before taking ANY action, verify:
+- [ ] Have I stated my understanding of the current boundary?
+- [ ] Have I built and presented an implementation plan?
+- [ ] Have I received approval for this specific step?
+- [ ] Am I only working on 1 file?
+- [ ] Am I clear on where this fits in the overall task?
+- [ ] Do I need to flag any boundary erosion?
+
+**When in doubt, ASK. Never assume.**
