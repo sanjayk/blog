@@ -1,0 +1,146 @@
+---
+title: "From Vibe to Verifiable: A Practical Example"
+date: "2026.01.06"
+category: "Developer"
+excerpt: "Chapter 4: Vibe Build - Steering and verification solving a business case"
+readTime: "3 min read"
+author: "sanjay"
+---
+
+
+## Architecting the Agentic Data Pipeline
+
+Every modern organization deals with data. This is a very practical post with concrete examples on how to build a multi-agent platform with **verification** at the heart of the system. What's interesting about this example is that **steering** comes with it. Also, you can build this with locally running LLMs.
+
+### The Maker-Checker Pattern for Deterministic Ingestion
+
+#### The WHY
+
+Traditional ETL (Extract, Transform, Load) pipelines operate on the assumption of structural stability. They expect clean CSVs or strictly typed JSON. In modern supply chain architectures, however, we are forced to ingest **unstructured vendor data**: legacy PDF exports, verbose API responses, and raw text dumps from PDM (Product Data Management) systems.
+
+A deterministic parsing script cannot handle the variance in these inputs. It fails to distinguish between a **good value** and a **bad value**, resulting in Master Data corruption.
+
+This chapter outlines the migration to an **Agentic Verification Architecture**. We replace fragile rule-based parsing with an adversarial **Maker-Checker** system 4 elegant **agents**:
+
+* **The Scout:** is the pre processing filter (Signal Isolation)
+* **The Maker:** enforces schema compliance (Structure).
+* **The Checker:** enforces semantic accuracy (Truth).
+* **The Curator:** enforces entity resolution (Uniqueness).
+
+---
+
+### 1. The Engineering Challenge: Signal vs. Noise
+
+In the Acme Corp ecosystem, data entropy is the primary threat. We ingest specifications for the same SKU from multiple upstream endpoints, leading to signal conflict:
+
+* **Feed A (Legacy Feeds):** Contains truncated descriptions and non-standard units.
+* **Feed B (Vendor API):** Provides high-fidelity specs but buries them in verbose marketing text.
+* **Feed C (Compliance Dump):** Unstructured text blobs containing mixed regulatory data.
+
+Standard ingestion processes treat all tokens as equal. This creates "Dirty Data" that breaks downstream validation. To solve this, we treat ingestion as an **adversarial audit process**. We adopt a **Zero-Trust** posture: no record enters the Master Data Management (MDM) layer without passing a cryptographic check for uniqueness and a semantic audit for technical validity.
+
+---
+
+### 2. The Architecture: Distributed Concerns
+
+We decouple the pipeline into four discrete state machines to prevent logic coupling.
+
+### **Agent A: The Scout (Payload Triage or Signal Isolation)**
+
+**Role:** Signal Isolation & Routing.
+
+**Engine:** `ijson`+`FlashRank` + `Qwen 2.5 14B` (Local). 
+
+**The Problem:** Raw ingestion buffers often have a low Signal-to-Noise Ratio (SNR). A vendor API response might be 5MB, but the technical specification is only 5KB. The rest is transmission metadata, warranty boilerplate, or irrelevant distinct product variants packed into the same payload.
+
+**The Logic:** The Scout acts as a **Pre-Processing Filter**. It analyzes the document hierarchy to identify the **Target Segment** (e.g., the specific JSON node or Text Block containing technical properties) and strips away the administrative overhead.
+
+>*Outcome:* We pass only high-signal buffers to the extraction layer, reducing context window consumption and processing latency.
+
+### **Agent B: The Maker (Schema Marshalling or Structured Transformer)**
+
+**Role:** Unstructured → Structured Transformation.
+
+**Engine:** `deepseek-coder-v2` (Local).
+
+**The Logic:** The Maker ignores the "meaning" of the data and focuses purely on **Type Safety**. It maps messy input buffers into strict Pydantic/JSON schemas.
+**Context Scoping:** We run the Maker in strict "Expert Modes" to enforce domain boundaries:
+
+* *Metallurgy Mode:* Extracts only ASTM material codes and hardness ratings.
+* *Logistics Mode:* Extracts only packaging dimensions and HS codes.
+* *Why:* By narrowing the context window, we prevent **Field Bleeding** (e.g., confusing "Gross Weight" in the shipping manifest with "Net Weight" in the product spec).
+
+### **Agent C: The Checker (Semantic Validation or Truth Seeker)**
+
+**Role:** Ground Truth Audit.
+
+**Engine:** `llama3.3:latest (70B parameters)` (Local).
+
+**The Logic:** This is the adversarial unit test. The Checker receives the *Original Raw Segment* and the *Candidate JSON*. It performs a forensic audit to ensure the extracted data is explicitly supported by the source text.
+
+* *Thresholding:* If the Checker cannot find a direct lineage for a value (e.g., an assumed unit of measurement not present in the source), it rejects the record. This prevents "probabilistic guessing" from polluting the database.
+
+### **Agent D: The Curator (Entity Resolution or Uniqueness Verifier)**
+
+**Role:** Master Data Management (MDM).
+**Engine:** `BAAI/bge-m3` (Hybrid Embeddings) within `Qdrant` to enforce strict lexical matching alongside semantic search, backed by `Qwen 2.5 (7B)` to adjudicate the final merge logic.
+**The Problem:** The "Twin Problem" (e.g., `Part #123-A` vs `123A-Rev2`).
+**The Logic:** The Curator enforces **Idempotency**.
+
+* **Hybrid Fingerprinting:** It generates dual-layer embeddings for incoming entities using `BAAI/bge-m3:` a **Dense Vector** for semantic description match ("Steel Valve") and a **Sparse Vector** for strict alphanumeric SKU matching ("123-A").
+* **Smart Upsert:** Before an `INSERT`, it performs a Hybrid Search in Qdrant.  If a high-confidence match is found, `Qwen 2.5` compares the new vs. existing record. It performs a `MERGE` operation, (applying Tier 1 authority rules) only if the LLM confirms they are the same entity, preventing false positives on similar part numbers.
+
+---
+
+## 3. Technology Stack: The "Local Ops" Strategy
+
+We utilize a heterogeneous model strategy via `config.py`, mapping specific model architectures to the pipeline stage where they offer the highest ROI.
+
+### The Maker (Extraction Layer)
+
+* **Model:** `deepseek-coder-v2:latest`
+* **Verdict:** **The Daily Driver.**
+* **Why:** Technical specifications often mimic code structures (nested key-value pairs). This model is trained on codebases, making it hyper-sensitive to syntax. It excels at generating valid JSON that adheres to complex nested schemas without syntax errors.
+
+### The Checker (Audit Layer)
+
+We fork the audit logic based on the complexity of the validation rule:
+
+**Option A: The Semantic Auditor (High VRAM)**
+
+* **Model:** `llama3.3:latest` (70B parameters)
+* **Hardware Req:** Mac Studio/Pro (64GB+ RAM) or Cloud GPU.
+* **Use Case:** **Nuance & Disambiguation.** Use this for qualitative fields (e.g., interpreting "Compliance: RoHS/REACH Pending" vs "Compliant"). The 70B parameter count provides the context window necessary to resolve ambiguous technical language.
+
+**Option B: The Logic Specialist (Chain-of-Thought)**
+
+* **Model:** `deepseek-r1:7b`
+* **Use Case:** **Constraint Satisfaction.**
+* **The Distinction:** We utilize this model exclusively for logical feasibility checks.
+  * *The Task:* "Is `Yield Strength` < `Ultimate Tensile Strength`?" or "Is the `Lead Time` consistent with the `Stock Status`?"
+  * *The Mechanism:* R1 produces a "Chain of Thought" trace. It validates the *internal logic* of the data point before acceptance. While 7B is small, its reasoning architecture makes it superior for binary logic gates.
+
+---
+
+## 4. Governance: The Hierarchy of Truth
+
+The pipeline utilizes a weighted trust algorithm. We configure the agents to respect a strict **Authority Hierarchy** when resolving merge conflicts:
+
+* **Tier 1 (Canonical):** OEM PDM Feeds, ISO/ANSI Registries.
+  * *Policy:* **Authoritative.** Data here overwrites all other sources.
+* **Tier 2 (Distribution):** Authorized Distributor APIs.
+  * *Policy:* **Augment.** Used for commercial data (Stock, Price), but technical specs yield to Tier 1.
+* **Tier 3 (Aggregator):** Third-party marketplaces / Gray market lists.
+  * *Policy:* **Quarantine.** Useful for signal discovery, but never promoted to Master Data without secondary verification.
+
+---
+
+## 5. Migration Strategy
+
+To move from legacy ETL to an Agentic Pipeline, follow this deployment order:
+
+1. **Phase 1: The Audit (Quality Control).** Deploy the **Checker** first. Run it against your *existing* Master Data. This acts as a regression test, flagging historical data quality issues and hallucinations currently in production.
+2. **Phase 2: The Cleanup (Deduplication).** Deploy the **Curator**. Clean the data lake by generating vector fingerprints and merging duplicate entities into Golden Records.
+3. **Phase 3: The Automation (Orchestration).** Refactor the ingestion loop to use the event-driven state machine: `Scout` → `Maker` → `Checker` → `Curator`.
+
+By the end of Phase 3, you have transitioned from a static ETL process to a **Self-Correcting Data Fabric** that guarantees the integrity of your supply chain operations.
