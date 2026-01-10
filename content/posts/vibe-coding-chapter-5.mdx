@@ -1,0 +1,114 @@
+---
+title: "From Vibe to Verifiable: The Exhaustion You Face"
+date: "2026.01.10"
+category: "Developer"
+excerpt: "Chapter 5: Vibe Build - It’s 11:30 PM. You’ve closed your laptop, but your brain is still vibrating."
+readTime: "5 min read"
+author: "sanjay"
+---
+
+You aren’t tired in the satisfying way that comes after cracking a tough algorithm or feel the "good sore" of a workout. You feel... fuzzy. Irritable. A little bit hollow.
+
+You look at your commit history. It’s impressive. You shipped three features, fixed a nagging bug, and added test coverage. The AI agent was fast, confident, and relentless. By all metrics, you crushed it.
+
+So why do you feel like you just spent 14 hours arguing with a toddler?
+
+Well, welcome to Vibe Coding in 2026.
+
+Let me break it down for you in sections that made the most sense to me.
+
+## The Micro-Management Trap
+
+Let me be real here, when you code with an AI Assistant (not going to call these agents) all day, you aren't pair-programming. Pairing with humans has attributes that **_this_** does not. Shared load, shared context that is enduring, judgement, **ACCOUNTABILITY** etc. I intentionally all-cap'd accountability; it's an extremely important attribute for human systems. Google, Anthropic, OAI or their models are simply not designed to be accountable.
+
+> You are the only adult in the room. You are responsible for every decision, every variable name, and every edge case. The agent is just a frantic typist, hell-bent on optimizing for local maximum outcomes.
+
+Think about the cognitive load of the loop:
+
+- Prompt: "Introduce a new user type that is a super user." (I don't think I have ever written a prompt like this, it's simply illustrative to make the point).
+- Review: You have to read code you didn't write (which is harder than writing it, and it is a batched set of changes that have no particular order).
+- Spot the lie: You notice it hallucinated a prop that doesn't exist.
+- Guide to correction: "No, use the existing interface."
+- Re-scan: It fixed the prop but broke the styling or fundamentally altered logic that breaks a different part of the system
+
+You are doing this hundreds of times a day. You are patching the gap between what you meant and what it guessed. The agent is tireless, but you aren't.
+
+## The "Groundhog Day" Student
+
+Imagine you are tutoring a student who is desperate to pass a test but has zero interest in actually learning the subject.
+
+This student listens intently. They nod. They repeat your words back to you with absolute confidence. They write down an answer that looks perfect. But then you ask, "Why did you use that function?" and they blank.
+
+So you guide them again.
+
+``` text
+"Focus on the edge case."
+"No, remember we’re using TypeScript, not plain JS."
+"You forgot the error handling again."
+```
+
+**The assistant never actually learns.**
+
+A human junior engineer grows up and the accountability transition happens. An intern absorbs context. You pay a teaching cost upfront, but you get compound interest later when they become autonomous.
+
+An agent resets every single time. You are paying the full "teaching tax" on every interaction, forever. You are trapped in a Groundhog Day of code review. And remember they have ZERO ACCOUNTABILITY. There are no consequences to the models, the assistants or the companies that create them.
+
+## Steering Entropy
+
+This workflow feels productive because it kills the "blank page" problem. You don't have to type the boilerplate.
+
+But it introduces a new, darker problem: **Supervisory Fatigue.**
+
+Traditional burnout comes from solving hard problems (or at-least should come from). Vibe coding burnout comes from constant vigilance. You can never fully trust the output. You have to stay in a state of shallow, low-grade anxiety, watching for the subtle bugs that AI is famous for, the ones that look right but fail pressure testing.
+
+Example:
+The agent adds a new button next to an existing button. It looks standard. You almost scroll past it. But because you are the only one with **"taste"** in the room, you have to stop, parse it and realize that adding the extra button fundamentally breaks the layout aesthetic.
+That 30 seconds of checking? That’s the tax. Multiply that by 500 interactions a day.
+
+You aren’t in "flow state." You are in "grading papers" state. And nobody likes grading papers for eight hours straight every single day.
+
+## The Erosion of Taste
+
+There is a subtle danger here that we don't talk about enough: "Good Enough" Syndrome.
+
+When you write code yourself, you exercise your taste. You make small, micro-decisions to make things clean, readable, and elegant.
+
+When you spend your day correcting an agent, your standards start to slip because you are just so tired of correcting it.
+
+``` text
+**Agent:** Generates a function that works but is slightly messy.
+**You (at 10 AM):** "Refactor that to be more dry."
+**You (at 4 PM):** "Whatever. It passes the tests. Ship it."
+```
+
+Velocity becomes the only argument that matters. You stop fighting for quality because fighting the agent requires energy you no longer have.
+
+### The Fix: Be the Foreman, Not the Teacher
+
+It may seem like I am advocating against using coding assistants, I am not. In fact, I can't imagine building software in any other way.
+
+This certainly isn't an argument to stop using AI. **The leverage is too real to ignore.** But we need to stop treating the agent like a collaborator. **It isn't a person.**
+
+The developers who survive this era won't be the ones who prompt the fastest. They will be the ones who practice **Containment.**
+
+Treat AI coding assistants like a power tool, not a craftsman's blade.
+
+If you are trying to use the AI as a chisel for fine-detail work, you’re going to be miserable. It’s a chainsaw. Don't be afraid to let it rip through the heavy lifting. But know you have the processes in place to clean up the mess afterwards.
+
+#### How to survive
+
+Knowing when to:
+
+* Let the agent generate freely
+* Lock it into narrow, deterministic tasks
+* Cut it off entirely and write the code yourself
+
+The best engineers will be the ones who can **vibe selectively** instead of the ones that **vibe hard**.
+
+- They’ll use agents where the surface area is large but the correctness criteria is tight.
+- They’ll avoid agents where judgment, architecture, or long-range coherence dominates.
+- They’ll treat the agent like a power tool, you see an error, don't be delicate about debugging. **Delete and restart.**
+
+The exhaustion you feel is your brain telling you that you are doing too much translation and not enough creation. Reclaim the fun parts of coding, the thinking, the designing, the crafting—and leave the grunt work to the machine.
+
+If you don't, you'll keep shipping record amounts of code, right up until the moment you burn out completely or you have zero agency over "your" code.
