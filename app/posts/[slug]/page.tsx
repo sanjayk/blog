@@ -3,6 +3,8 @@ import { notFound } from "next/navigation"
 import { getAllPosts, getPostBySlug } from "@/lib/posts"
 import { MDXRemote } from "next-mdx-remote/rsc"
 import { ProductToolkitGrid } from "@/components/product-toolkit-grid"
+import { CustomTable } from "@/components/custom-table"
+import remarkGfm from "remark-gfm"
 
 export async function generateStaticParams() {
   const posts = getAllPosts()
@@ -60,7 +62,15 @@ export default async function PostPage({ params }: { params: { slug: string } })
           </div>
 
           <div className="prose prose-neutral max-w-none dark:prose-invert">
-            <MDXRemote source={post.content} components={{ ProductToolkitGrid }} />
+            <MDXRemote 
+              source={post.content} 
+              components={{ ProductToolkitGrid, CustomTable }}
+              options={{
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                }
+              }}
+            />
           </div>
         </article>
 
