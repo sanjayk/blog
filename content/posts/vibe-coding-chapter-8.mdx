@@ -1,0 +1,98 @@
+---
+title: "The 1 Burrito Rule"
+date: "2026.02.02"
+category: "Developer"
+excerpt: "Chapter 8: Bezos gave us the 2 Pizza Rule. He didn't anticipate the swarm."
+readTime: "5 min read"
+author: "sanjay"
+---
+
+Jeff Bezos gave us the 2 Pizza Rule. If you can't feed your team with two pizzas, it's too big.
+
+For 20 years, this was gospel. Engineering managers would do the math: *"Nine people... that's 2.25 pizzas... somebody's gotta go."*
+
+The logic was sound. Small teams communicate better. Every person you add creates more channels, more meetings, more friction. Keep it tight. Two pizzas. Done.
+
+**But the 2 Pizza Rule assumed humans.**
+
+---
+
+Last Tuesday I spun up 30 Claude agents on a refactoring task.
+
+Thirty.
+
+Some were analyzing dependencies. Some were rewriting modules. Some were running tests. A few were reviewing each other's work. One agent's entire job was to summarize what the other agents did.
+
+At one point I checked the logs and found 29 of them in what I can only describe as a *heated disagreement* about whether to use `forEach` or `map`. Meanwhile, agent #30 had quietly shipped the PR while the others were distracted.
+
+Twenty-nine philosophers. One plumber.
+
+Do these count as team size, Jeff? Do I need 15 pizzas? **Do agents eat pizza?**
+
+---
+
+Here's what nobody warned me about: agents develop *politics*.
+
+Not consciously. But when you have multiple agents touching the same codebase, their outputs start colliding. Agent A refactors a function. Agent B, working on something adjacent, reads the old version and makes assumptions. Agent C runs the tests and catches the mess. Agent D opens an issue *on Agent A's work*.
+
+I've watched agents form factions in the logs. Not because they're sentient - because their tasks have dependencies, and dependencies create conflict, and conflict looks the same whether it's humans in a sprint planning meeting or language models in a terminal.
+
+The difference is speed. What takes a human team two weeks to fuck up, agents can fuck up in four minutes.
+
+But you can also *fix* it in four minutes. You see the conflict forming, you intervene, you redirect. Or you grab your coffee and let them sort it out. Sometimes they do.
+
+---
+
+So here's my new heuristic. I call it the **1 Burrito Rule**:
+
+> If you can't finish your burrito before the agents finish the sprint, you've shipped.
+
+This isn't entirely a joke.
+
+My workflow now looks like this: Define what I want. Spawn the swarm. Eat lunch. Check the PR. Maybe nudge a few things. Ship.
+
+The human's job isn't to write the code anymore. It's to:
+- Know what "done" looks like
+- Point the swarm in the right direction
+- Break ties when they argue
+- Decide if the output is actually good
+
+That loop takes... about one burrito.
+
+---
+
+The weird part is realizing that "team size" was never about people. It was about *attention*.
+
+The 2 Pizza Rule worked because small teams meant fewer demands on everyone's attention. Less coordination. Less context-switching. More focus.
+
+With agents, you can have a "team" of 50 that requires less attention than a team of 5 humans. Or you can have 5 agents on a gnarly problem that thrash worse than any human team I've managed.
+
+The variable isn't headcount. It's how much of *your* attention the work demands.
+
+A task that's embarrassingly parallel? Throw 50 agents at it. You barely need to watch.
+
+A task with tight dependencies and ambiguous requirements? Even 3 agents will have you babysitting constantly.
+
+The question isn't "how many agents" - it's "how much babysitting."
+
+---
+
+I think about Brooks's Law a lot now. *"Adding people to a late project makes it later."* The insight was that communication overhead grows faster than productivity.
+
+Agents don't eliminate that overhead. They just make it visible in a way human teams never were.
+
+When Agent 7 is blocked on Agent 3, you can *see* it. When Agent 12 duplicates work, you catch it in seconds. The dysfunction that takes human teams months to diagnose plays out in your terminal in minutes.
+
+It's humbling, honestly. All the problems we blamed on "process" or "culture" or "that one guy who won't update his tickets" - turns out a lot of it is just... the physics of coordinated work. Agents have the same problems. They just can't blame anyone.
+
+---
+
+The 2 Pizza Rule was brilliant for its era. It encoded a truth about human coordination limits into a food metaphor that executives could remember.
+
+But it measured team size in bodies.
+
+The 1 Burrito Rule measures team size in attention.
+
+One developer, thirty agents, a mass of emergent politics in the logs, and somewhere in the chaos - a PR that actually ships.
+
+Welcome to the swarm. Your burrito's getting cold.
