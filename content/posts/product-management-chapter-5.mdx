@@ -1,0 +1,128 @@
+---
+title: "The Remaking of the Product Manager Role"
+date: "2026.02.19"
+category: "Product"
+excerpt: "Chapter 5: The PM role will become more important, not less. But not the version most companies are running."
+readTime: "12 min read"
+author: "sanjay"
+---
+
+The Product Manager role is about to become more important, not less. Engineers are good at making things **functional**. A good product manager is someone who makes the thing **useful**.
+
+Spotify's recommendation algorithm could generate personalized playlists for years before Discover Weekly existed. Matthew Ogle turned it into a product by making decisions the algorithm couldn't: deliver it every Monday, exactly 30 songs, refresh it weekly so last week's disappears. Frame it as "Made For You," not "Songs Our Algorithm Picked." Within a year, 40 million users. It became a huge differentiator Spotify had against Apple Music, which had the same catalog and a bigger budget. Apple had a functional recommendation engine too. Spotify had Matthew, who had good judgement.
+
+But that is not how most product management works at most companies.
+
+In most companies, a Product Manager translates a business need into specs/PRD. Specs into tickets. Tickets into sprints. Sprints into roadmap decks for executives. Melissa Perri called it the "build trap": organizations that measure PM success by how much they ship instead of how much value they deliver.
+
+When it takes a team of eight engineers six weeks to build a feature, someone has to de-risk the bet before work starts. Someone has to write the spec, validate the assumptions, negotiate the scope, write Jira tickets. That math only works if the cost of building is high enough to justify the cost of planning.
+
+When an engineer can ship roughly 200 pull requests in a single month using AI agents, that math doesn't hold anymore.
+
+Agents multiply output but value multipliers are a whole different ball game. When output was expensive, the gap between them was hard to see. When output is nearly free, what do you think gets exposed?
+
+---
+
+## The Dissolving Lines
+
+Product management, engineering, and design divided along production lines. PMs owned specs and roadmaps, engineers owned code, and designers owned mockups and prototypes. Each discipline had its own artifacts, tools and career ladder. The org chart reflected the division of labor.
+
+Brian Chesky restructured Airbnb in 2023 and eliminated the traditional PM role. Linear doesn't hire product managers. The company is built around engineers who own product direction for the surfaces they build. Vercel hires "product engineers," people who design, build, and ship without handing work across a boundary. These are companies that looked at the boundary and decided it was the problem. None of them eliminated the PM function. They just distributed it.
+
+Agents accelerate that erosion. A PM can go from customer insight to working prototype in an afternoon using Claude or Cursor without an engineering handoff. An engineer can generate and test four UI variations in the time it used to take to schedule a design review. A designer can ship a functional component without filing a ticket. The handoffs that justified the boundaries are collapsing.
+
+The production skills that justified the division (writing code, creating mockups, drafting specs) are all compressible now. **What remains is whether the product is desirable to the customer**. Agents compress the production work that kept them apart. The questions still remain.
+
+The job description below reflects that convergence. It asks for things traditional PMs were told weren't their job: technical fluency, design taste, commercial ownership, etc.
+
+---
+
+## The New Job Description
+
+**Product Manager**
+
+Agents can generate a working feature in an afternoon. Anyone can make a product functional now. Your job is to make sure the product is valuable.
+
+Agents operate in a loop: plan, execute, evaluate. So do you, just one layer above. You define what the agent plans against. You write the constraints it executes within. You judge whether what it produced was valuable. Your language forms the basis for the agent's operating context.
+
+---
+
+### Responsibilities
+
+_These have always been the job. Slow production cycles meant the cost of a wrong decision took months to surface. When agents can ship that same decision in an afternoon, the feedback loop tightens and the stakes per decision go up._
+
+- **Value Discovery.** Direct observation of customers, not proxied through research reports or sales call summaries. A PM who skips this now will see their bad assumption in production by Thursday instead of discovering it in a quarterly review.
+
+> Scott Cook's "Follow Me Home" program at Intuit sent PMs to customers' homes to watch them do their taxes. Not to ask what they wanted. To see where they got stuck.
+
+- **Pricing and GTM.** You don't own pricing, GTM or packaging in most companies. That doesn't mean you can ignore them. When agents compress build cycles, GTM compresses too. Ignore it and you'll ship features that sit unused.
+
+> Stewart Butterfield let teams adopt Slack without IT approval. A product decision that dictated the entire GTM motion.
+
+- **Ruthless Prioritization.** Cutting what works to make room for what matters. No agent will do this for you because no metric will tell you to do it. Agents ship fast. Without someone killing what doesn't matter, the product gets cluttered in months instead of years.
+
+> Remember what Steve Jobs did when he came back to Apple. He cut 70% of Apple's product portfolio.
+
+_These are new. They didn't exist before agents entered the production loop._
+
+- **Build institutional memory for agents.** Your observations become the context window agents operate in. A product decision you capture in clear, specific natural language today becomes a constraint an agent enforces tomorrow. Sloppy notes produce sloppy products.
+
+- **Set constraints that shape what agents and engineers build.** Constraints for agents need to be more explicit because agents don't infer intent the way a senior engineer does. A human engineer might push back on a bad constraint. An agent will follow it off a cliff.
+
+> Vohra at Superhuman defined one constraint: every interaction must complete in under 100 milliseconds. That single boundary filtered thousands of engineering decisions without him in the room.
+
+- **Evaluate shipped software against real customer outcomes, not acceptance criteria.** Write evals the way ML teams write evals: measurable, repeatable checks that test whether the product is producing value, not just functioning. Acceptance criteria ask "does the button work." An eval asks "did the user accomplish what they came here to do, and did they come back."
+
+- **Design AI guardrails as product decisions.** You know when a model needs a filtering layer, when it needs a human fallback and when it needs both. You build the constraints into the product.
+
+> Google's Smart Reply team built a triggering model that filters sensitive topics before the AI ever generates a suggestion. McDonald's skipped the fallback for autonomous drive-thru ordering and pulled the system after wrong orders went viral.
+
+### Requirements
+
+_Always mattered. Now non-negotiable._
+
+- **Deep domain expertise.** You understand your customer's world well enough to catch what no spec captures. That knowledge always separated great PMs from adequate ones. The difference now is that your domain knowledge isn't just context in your head. It's an input to the system. Record it in natural language. It feeds the agents.
+
+> A workflow looks fine on paper, then breaks when the accounting team runs their monthly close and needs an export format your feature doesn't support.
+
+- **Commercial instinct.** You understand how your product makes money without opening a dashboard. You may not own pricing, but you can reason about how a bundling change affects expansion revenue. You know the difference between a feature that drives acquisition and one that reduces churn.
+
+> Stripe requires every PM to have shipped a product independently or write production code. They need PMs who understand the economics of every decision, even the ones they don't control.
+
+- **Taste.** You can look at a working product and know it misses the mark before the data tells you. A broken UI throws an error. A bad UI renders fine. No one files a bug for "this feels off." This was always rare and valuable. Agents just multiplied the surface area that needs it.
+
+_New requirement. Didn't exist five years ago._
+
+- **Technical fluency with AI.** You won't write the code, but can direct an AI to write code. You need to understand how agents fail at the product level.
+
+> Zillow's iBuying algorithm was told to win bids on homes. It did. It consistently overpriced homes in declining markets because "win the bid" was the metric, not "make a profitable purchase." Zillow lost $881 million and shut down the program in 2021. The algorithm was functional. The constraint was wrong. That was a product failure, not an engineering failure.
+
+---
+
+## This Role Is Not a Good Fit If
+
+_Most of these were true before AI. The difference is that slow production cycles gave PMs room to coast on process without anyone noticing. That room is gone._
+
+- You cannot comprehend that one day equals one sprint is a real possibility, and your instinct is to add more process to slow it down
+- You measure your productivity in PRDs written, stories pointed, or number of sprints in green
+- You organize work into sprints because that's what the last company did
+- Your stakeholder updates are longer than your customer interview notes
+- You need engineering to build a prototype before you can test a hypothesis
+- You think go-to-market has nothing to do with your role
+- You describe your role as "the voice of the customer" but haven't spoken to one this month
+- You've never killed a feature that hit its KPIs
+- You can't explain how your product makes money
+- You've never used an AI tool to prototype, test, or validate a product idea
+- You can't explain what a language model does well vs. poorly at the product level
+- You write constraints and specs that depend on someone else inferring your intent
+- You treat the AI boundary as an engineering decision rather than a product decision
+- You've never reviewed an AI-generated output
+- You don't know what an eval is or why "the tests pass" is insufficient for AI features
+
+---
+
+The production layer that gave PMs their process, their artifacts and their org chart authority is compressing underneath them. The boundaries they shared with engineering and design are dissolving. The companies they study in case interviews (Airbnb, Linear, Stripe) already restructured around this.
+
+When production becomes cheap and production boundaries dissolve, the value you deliver simply becomes the metric that matters the most.
+
+340,000 people carry the title. The title is not the job. It never was.
