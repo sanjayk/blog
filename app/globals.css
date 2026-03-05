@@ -172,3 +172,27 @@
 .prose blockquote {
   @apply border-l-2 border-border pl-4 italic text-muted-foreground;
 }
+
+.prose table {
+  @apply mb-6 w-full text-sm;
+}
+
+.prose thead {
+  @apply border-b border-border;
+}
+
+.prose th {
+  @apply px-4 py-3 text-left font-semibold text-muted-foreground;
+}
+
+.prose td {
+  @apply px-4 py-3 align-top;
+}
+
+.prose tbody tr {
+  @apply border-b border-border/50;
+}
+
+.prose tbody tr:last-child {
+  @apply border-b-0;
+}
