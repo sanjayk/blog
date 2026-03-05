@@ -1,0 +1,142 @@
+---
+title: "Pick Your Epoch"
+date: "2026.03.05"
+category: "Product"
+excerpt: "Everyone measures AI progress differently. The framework you pick determines the mistake you make."
+readTime: "14 min read"
+author: "sanjay"
+---
+
+## Two Days Ago
+
+On March 3, Goldman Sachs published a finding that should have been front-page news: across a survey of nearly 6,000 executives in the U.S., Europe and Australia, 70% of firms are actively using AI, and 80% reported no measurable impact on employment or productivity. Goldman's chief economist put the aggregate number at "basically zero" GDP impact from AI in 2025.
+
+That same week, Bloomberg reported that Anthropic is approaching a $20 billion revenue run rate, more than doubling from $9 billion at the end of 2025. The growth is driven by Claude Code, whose business subscriptions quadrupled since January.
+
+Two data points, same week, same industry. One says AI isn't producing economic value. The other says a single AI company is printing revenue at a rate that would place it among the 100 largest companies in the world by sales.
+
+Both are true. They're measuring different things.
+
+Every informed person I talk to has a confident answer to "where are we with AI?" and those answers flatly contradict each other. The disagreement isn't about facts. Each person is measuring a different dimension of the same phenomenon, and the dimension they pick determines the conclusion they reach.
+
+---
+
+## Five Dimensions, Five Answers
+
+At least five serious frameworks exist for measuring AI progress. Each was built by a credible institution to answer a specific question. The problems start when someone borrows one framework's answer for a different framework's question.
+
+**Compute** measures how much raw power goes into training. Epoch AI, a research institute whose data the Federal Reserve and OECD cite in policy documents, tracks training compute across the industry. Hyperscaler capex has quadrupled since GPT-4's release. The five largest U.S. cloud providers (Microsoft, Alphabet, Amazon, Meta, Oracle) have committed to $660-690 billion in capital expenditure for 2026, a 36% increase over 2025, with roughly 75% tied directly to AI infrastructure. The framework answers: *how much resource intensity is going into AI development?*
+
+**Capability** measures what AI systems can actually do. OpenAI published a five-level taxonomy in July 2024 (first reported by Bloomberg): Level 1 is chatbots, Level 2 is reasoners, Level 3 is agents, Level 4 is innovators, Level 5 is full organizational autonomy. On SWE-bench Pro, the hardest coding benchmark, the top models (Claude Opus 4.5, GPT-5, Gemini 3 Pro) cluster between 42% and 46% on public evaluations. The framework answers: *what categories of human work can AI perform?*
+
+**Maturity** measures how good AI is across how many domains simultaneously. DeepMind's "Levels of AGI" paper (Morris et al., ICML 2023) plots capability against generality on a matrix. A chess engine is Level 5 Narrow (superhuman at one thing). Current LLMs sit at roughly Level 1 General: "Emerging AGI," meaning they match an unskilled human across a wide range of tasks. The framework answers: *how competent is AI, at how many things?*
+
+**Safety** measures what AI systems could threaten. Anthropic's AI Safety Levels (ASL-1 through ASL-4) define escalating tiers of potential harm and the security measures required at each tier. Anthropic activated ASL-3 for Claude Opus 4 in May 2025, the first time any lab triggered that level, because they couldn't rule out that the model could assist someone with an undergraduate STEM background in developing CBRN weapons. In February 2026, Anthropic released RSP 3.0, the most structurally significant update to its safety policy since the original, including a commitment to publish risk reports every three to six months. The framework answers: *what damage could this system enable if misused?*
+
+**Value** measures where money flows and whether it generates returns. The industry spent $527 billion on AI infrastructure in 2025 and generated roughly $51 billion in traceable AI revenue, a 10.3-to-1 ratio. For comparison, when cloud computing hit the same adoption curve in 2011, the ratio was 2.4-to-1. OpenAI ended 2025 at $20 billion ARR. Anthropic is approaching $20 billion in run-rate revenue as of this month. Revenue is growing. But the industry needs to generate $2 trillion in annual revenue by 2030 to justify the infrastructure being built today. The framework answers: *is this investment producing returns?*
+
+| Dimension | Framework | Built By | Core Question |
+|-----------|-----------|----------|---------------|
+| Compute | Hyperscaler capex, training compute trends | Epoch AI | How much power goes in? |
+| Capability | 5 Levels of AI, SWE-bench, domain benchmarks | OpenAI, Scale AI | What can AI replace? |
+| Maturity | Levels of AGI matrix | DeepMind (Morris et al.) | How good, at how many things? |
+| Safety | AI Safety Levels (ASL), RSP 3.0 | Anthropic | What could AI threaten? |
+| Value | Revenue-to-capex ratios, ARR growth | Sequoia, Goldman Sachs | Where does money flow? |
+
+The Federal Reserve cites Epoch AI in policy deliberations. Anthropic's ASL levels trigger actual security protocols that gate model releases. Goldman's productivity findings move markets. Real money and real security protocols move on these frameworks.
+
+The expensive mistake is using one framework's answer for another framework's question.
+
+---
+
+## One Morning in January 2025
+
+On January 27, 2025, DeepSeek released R1. Total training cost for the full pipeline (base model through reasoning distillation): $5.87 million, according to the company's technical report. The model matched OpenAI's o1 on AIME 2024, MATH-500 and several coding benchmarks.
+
+Nvidia lost $589 billion in market cap the next day. The largest single-day loss in U.S. stock market history, per Bloomberg. Worth more than the entire market capitalization of Oracle, Intel and AMD combined.
+
+One event. Five frameworks. Five completely different readings.
+
+Through a **compute** lens, the news was destabilizing. DeepSeek built R1 on 2,048 Nvidia H800 GPUs, an older chip that exists because U.S. export controls blocked China from accessing A100s and H100s. The model matched frontier systems trained on clusters costing 10-20x more. The assumption that performance scales linearly with compute spending, which had underwritten two years of infrastructure investment, developed a visible crack.
+
+Through a **capability** lens, the news was democratizing. Reasoning-class AI was no longer gated behind billion-dollar budgets. Any well-funded team could now train at the frontier. Open-source reasoning models entered the conversation for the first time.
+
+Through a **safety** lens, the news was alarming. The cost barrier to training capable models dropped by an order of magnitude overnight. The number of actors who could plausibly build frontier-capable AI expanded from a handful of well-funded labs to a much broader set. Every assumption about who could build dangerous models needed revision.
+
+Through a **value** lens, the news demanded reexamination. If capability decouples from compute cost, the question of where value accrues in AI shifts dramatically. Why pay a premium for infrastructure if a $6M model matches a $100M one?
+
+Through an **org readiness** lens, the news was a vendor lock-in warning. Companies that spent 18 months building compliance workflows, retraining staff and fine-tuning on one provider's proprietary stack suddenly faced a question: if comparable capability is available from a $6M open-source model, did all that integration work just become a liability?
+
+A venture capitalist using a value lens would ask the right question for an investment decision: if capability decouples from compute cost, where does revenue accrue now? A safety researcher measuring through ASL would flag the right risk for a deployment decision: the cost barrier to building dangerous models just dropped. Both correct, both reading the same morning differently.
+
+A CTO measuring by quarterly engineering output would see new capability unlocked. But if she's only tracking team velocity and not her vendor dependencies, she'd miss that her provider lock-in became a strategic exposure. Right framework, incomplete application.
+
+A policy advisor referencing compute-based regulatory thresholds would be the most exposed. DeepSeek proved a $6M model can match a $100M one. Every regulatory framework built on compute cost as a proxy for danger stopped meaning what its authors intended.
+
+---
+
+## Matching Frameworks to Decisions
+
+The practical question is: which framework should you reach for, and when?
+
+The failures trace back to someone reaching for the most familiar framework instead of the one that fits the decision they're making.
+
+| Your Decision | Common Mistake | Better Framework | Why |
+|---------------|----------------|------------------|-----|
+| **Investment allocation** | Capability demos ("look what it can do!") | **Value** (revenue-to-capex ratios, ARR trajectories) | Demos don't predict revenue. The industry spent $527B on infrastructure in 2025 and generated $51B in traceable AI revenue. That 10:1 ratio needs to close to roughly 2:1 before the capex is justified. OpenAI and Anthropic are both approaching $20B ARR, but the industry needs $2T annually by 2030. |
+| **Deployment safety** | Capability benchmarks or commercial traction | **Safety** (Anthropic ASL, RSP 3.0, DeepMind Frontier Safety Framework) | A model can be impressive and dangerous simultaneously. Anthropic's ASL-3 activation was about weapons safety, not model ranking. "Our fastest-growing product" and "we can't rule out weapons uplift" describe the same company in the same quarter. |
+| **Product roadmap** | Safety frameworks or compute trends | **Capability** (SWE-bench, domain benchmarks, OpenAI Levels) | On SWE-bench Pro, the top models solve 42-46% of real-world software engineering problems. That number was near zero 18 months ago. Safety frameworks won't tell you which products just became feasible. Compute trends won't tell you what users can do today. |
+| **Regulatory design** | Compute cost thresholds | **Maturity + Safety** (DeepMind Levels of AGI, NIST AI RMF, Anthropic RSP 3.0) | California's SB 1047 set a $100M training-cost threshold as a proxy for dangerous capability. Governor Newsom vetoed it in September 2024, citing exactly this flaw: compute cost is a poor proxy for what a model can do. DeepSeek confirmed his reasoning four months later. |
+| **Organizational readiness** | Maturity scorecards (Gartner, vendor self-assessments) | **Effort allocation** (MIT/BCG adoption research, Deloitte's State of AI in the Enterprise) | MIT Sloan and BCG found that companies seeing value from AI spent 70% of their effort on people and process, not technology. Maturity scores measure inputs. Meanwhile, 42% of companies abandoned most AI initiatives in 2025, up from 17% in 2024. Nearly two-thirds of organizations remain stuck in the pilot stage. The bottleneck is organizational absorption, not model capability. |
+
+---
+
+## What's Moved Since DeepSeek
+
+DeepSeek R1 was January 2025. In the 14 months since, nearly every dimension has shifted. Not all in the same direction.
+
+**Capability moved forward, fast.** OpenAI's o1 scored 83.3% on an AIME qualifying exam where GPT-4o scored 13.4%, achieving the gain through inference-time compute rather than larger model size. On SWE-bench Pro, the hardest coding benchmark Scale AI runs, top models now solve 42-46% of real-world engineering tasks. Gartner reported a 1,445% surge in inquiries about multi-agent systems. The conversation moved from "can AI reason?" to "can AI sustain autonomous work over days?" within a single calendar year.
+
+**Safety moved forward, under pressure.** Anthropic activated ASL-3 for the first time in May 2025 because they couldn't rule out that Claude Opus 4 crossed a weapons-assistance threshold. They didn't find evidence of harm. They activated it because they couldn't prove absence. The distinction matters, and it should worry you either way. RSP 3.0, released February 2026, formalized the process with mandatory risk reports every three to six months.
+
+**Value moved sideways.** Revenue is growing. OpenAI hit $20B ARR. Anthropic is approaching the same number. But the denominator is growing faster. The hyperscalers committed $660-690B in capex for 2026 alone. Goldman found "no meaningful relationship between AI and productivity at the economy-wide level." A survey of 6,000 executives: 70% using AI, 80% reporting no measurable productivity impact. The money is flowing in. The economic returns haven't shown up yet at a macro level.
+
+**Org readiness moved backward.** S&P Global's 2025 enterprise survey found that 42% of companies abandoned most of their AI initiatives, up from 17% the prior year. Nearly two-thirds of organizations remain stuck in the pilot stage, per Deloitte. HBR published an analysis in February 2026 on why AI adoption stalls, pointing to middle management perceiving AI as a threat to their authority and quietly derailing initiatives. The technology got dramatically better. The institutions trying to use it got worse at absorbing it.
+
+---
+
+## The Cascade Effect
+
+Disruptions don't stay in one dimension. DeepSeek was a compute efficiency breakthrough that, within 24 hours, rippled across capability, safety, value and org readiness.
+
+```
+A disruption lands in one dimension and cascades:
+
+         COMPUTE  <--  DeepSeek: training cost dropped by an order of magnitude
+            |
+            |----> CAPABILITY  (reasoning models democratized)
+            |
+            |----> SAFETY  (more actors can build capable models)
+            |
+            |----> VALUE  (infrastructure investment thesis questioned)
+            |
+            |----> ORG READINESS  (vendor lock-in became a liability)
+```
+
+The next disruption could land anywhere. A new architecture that makes the transformer obsolete. A model that sustains autonomous work over days rather than minutes, crossing into OpenAI's Level 3. Boston Dynamics shipping 30,000 production Atlas units (announced at CES 2026) and proving embodied AI at scale. Open-source inference costs approaching zero. A company that proves the 70/20/10 people-process-technology split works at Fortune 500 scale.
+
+Each would cascade. The specific cascade is unpredictable, but the pattern is reliable: a shift in one dimension reshuffles the others around it.
+
+---
+
+## Between Epochs
+
+Ilya Sutskever told the NeurIPS 2024 audience that "pre-training as we know it will unquestionably end." Epoch AI projects that usable public training data will be exhausted between 2028 and 2032. The era of "scale the model and the data" is entering its final phase, and what replaces it (inference-time compute, synthetic data, new architectures, some combination) is still forming.
+
+Meanwhile, the hyperscalers are financing the transition with debt. They raised $108 billion in debt during 2025 alone, with projections suggesting $1.5 trillion in total issuance over the coming years. Capital intensity has surged to levels that would have been unthinkable five years ago: 57% for Oracle, 45% for Microsoft. Companies that historically funded themselves from free cash flow are now leveraging their balance sheets to bet on AI infrastructure.
+
+Stable eras don't produce five competing measurement frameworks from five different institutions. The fact that Epoch AI, OpenAI, DeepMind, Anthropic and Goldman Sachs each built their own way to measure the same industry and arrived at different answers is the clearest signal that the ground hasn't settled.
+
+Your position in this transition isn't a single label. It's five positions on five timelines. The one that matters most depends on the decision you're making this week.
+
+Pick the framework that fits the decision. Expect to pick again when the next dimension shifts.
